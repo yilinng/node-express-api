@@ -6,6 +6,7 @@ const router = express.Router();
 const User = require('../models/user');
 const RefreshToken = require('../models/refreshtoken');
 const verify = require('../verifyToken'); 
+const { token } = require('morgan');
 
 
 router.post('/token', async (req, res) => {
@@ -27,15 +28,21 @@ router.post('/token', async (req, res) => {
 
 //Getting this user
 router.get('/', verify, async(req, res) => {
-  const cookie = getcookie(req);
 
-  const { retoken } = cookie;
+  const { headers: {cookie} } = req;
+  //if no cookie
+  if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
+  
+  const getCookie = getcookie(req);  
+  const { retoken } = getCookie;
+
     try {
       const user = await User.findOne({email: req.user.email});
         res.status(200).json({user, retoken})
     } catch (err) {
         res.status(500).json({ message: err.message})
     }
+    
 });
 
 //Creating One
@@ -86,9 +93,6 @@ router.post('/signup', async (req, res) => {
 //clear token need refreshtoken !!
 router.delete('/logout', (req, res) => {
  
-  //const cookie = getcookie(req);
-  //console.log(cookie);
- 
   //refreshTokens database have to delete when log out!!
    RefreshToken.remove({ refresh_token: req.body.token })
    .then(res => console.log('success', res))
@@ -96,7 +100,7 @@ router.delete('/logout', (req, res) => {
 
   //  Clearing the cookie
   res.clearCookie('token');
-   
+  res.clearCookie('retoken')
   //refreshTokens = refreshTokens.filter(token => token !== req.body.token);
   res.status(204).json({ message: 'logout success!!' })
   
@@ -148,6 +152,9 @@ router.post('/login', getUser, async (req, res) => {
   });
   
   router.put('/update-profile',verify, async(req, res) => {
+    const { headers: {cookie} } = req;
+    //if no cookie
+    if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'});
     
     let hashedPassword;
     //check password have mutation
@@ -167,8 +174,6 @@ router.post('/login', getUser, async (req, res) => {
     res.status(400).json(err);
   }
   
-    
-    
   });
 
 async function getUser(req, res, next){
