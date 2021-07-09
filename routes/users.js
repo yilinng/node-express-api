@@ -6,7 +6,7 @@ const router = express.Router();
 const User = require('../models/user');
 const RefreshToken = require('../models/refreshtoken');
 const verify = require('../verifyToken'); 
-const { token } = require('morgan');
+const { v4: uuidv4 } = require('uuid');
 
 
 router.post('/token', async (req, res) => {
@@ -20,25 +20,27 @@ router.post('/token', async (req, res) => {
     const accessToken = generateAccessToken(user);
     res.cookie('token', accessToken, {
       expires  : new Date(Date.now() + 9999999),
-      httpOnly : false
-    })
-    res.status(200).json({accessToken: accessToken});
+      httpOnly : true
+    });
+    res.status(200).json({ accessToken });
   })
-})  
+});
+
+router.get('/get-cookies', (req, res) => {
+  const cookies = req.cookies;
+  res.json({cookies: cookies})
+})
 
 //Getting this user
 router.get('/', verify, async(req, res) => {
-
-  const { headers: {cookie} } = req;
-  //if no cookie
-  if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
   
-  const getCookie = getcookie(req);  
-  const { retoken } = getCookie;
+  const { headers: {cookie} } = req;
+  
+  if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
 
     try {
       const user = await User.findOne({email: req.user.email});
-        res.status(200).json({user, retoken})
+        res.status(200).json({ user })
     } catch (err) {
         res.status(500).json({ message: err.message})
     }
@@ -75,11 +77,24 @@ router.post('/signup', async (req, res) => {
     try {
       const newUser = await user.save(); 
       const newToken = await token.save();
+      
       res.cookie('token', accessToken, {
         expires  : new Date(Date.now() + 9999999),
+        httpOnly : true
+      });
+  
+      res.cookie('retoken', refreshToken, {
+        expires  : new Date(Date.now() + 9999999),
+        httpOnly : true
+      });
+  
+      res.cookie('auth', uuidv4(), {
+        expires  : new Date(Date.now() + 9999999),
         httpOnly : false
-      })      
+      });
+
       res.status(201).json({
+        accessToken,
         newToken,
         newUser    
       });
@@ -94,13 +109,14 @@ router.post('/signup', async (req, res) => {
 router.delete('/logout', (req, res) => {
  
   //refreshTokens database have to delete when log out!!
-   RefreshToken.remove({ refresh_token: req.body.token })
+   RefreshToken.deleteOne({ refresh_token: req.body.token })
    .then(res => console.log('success', res))
    .catch(err => console.log('fail', err));
 
   //  Clearing the cookie
+  res.clearCookie('auth');
   res.clearCookie('token');
-  res.clearCookie('retoken')
+  res.clearCookie('retoken');
   //refreshTokens = refreshTokens.filter(token => token !== req.body.token);
   res.status(204).json({ message: 'logout success!!' })
   
@@ -121,7 +137,7 @@ router.post('/login', getUser, async (req, res) => {
     if(findUser) return res.status(400).json({message: 'user is login!'});
 
     //Create and assign a token
-   // generate refresh token and put in database
+   // generate refresh token and push in database
    const user = { email: res.user.email, pwd: res.user.password };
    const accessToken = generateAccessToken(user);
    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRECT);
@@ -133,16 +149,24 @@ router.post('/login', getUser, async (req, res) => {
   try {
   
     const newToken = await token.save();
+
     res.cookie('token', accessToken, {
       expires  : new Date(Date.now() + 9999999),
-      httpOnly : false
+      httpOnly : true
     });
+
     res.cookie('retoken', refreshToken, {
       expires  : new Date(Date.now() + 9999999),
       httpOnly : true
-    });      
+    });
+
+    res.cookie('auth', uuidv4(), {
+      expires  : new Date(Date.now() + 9999999),
+      httpOnly : false
+    });
+
     res.status(201).json({
-      newToken
+      accessToken, newToken, user: res.user
     });
        
   } catch (err) {
@@ -164,11 +188,14 @@ router.post('/login', getUser, async (req, res) => {
     }else{
       hashedPassword = req.user.pwd;
     }
-  
+    console.log(req.user)
    try{
       const user = await User.updateOne(
-        { email: req.body.email}, 
-        {$set: {name: req.body.name, password: hashedPassword}});
+        { _id: req.body._id}, 
+        {$set: {
+          name: req.body.name, 
+          email: req.body.email, 
+          password: hashedPassword}});
       res.status(200).json(user);  
   } catch(err) {
     res.status(400).json(err);
@@ -189,19 +216,8 @@ async function getUser(req, res, next){
     next()
 }
 
-
-function getcookie(req) {
-  const { headers: {cookie} } = req;
-  // user=someone; session=QyhYzXhkTZawIb5qSl3KKyPVN (this is my cookie i get)
-  return cookie.split('; ').reduce((res, item) => {
-    const data = item.trim().split('=');
-    return {...res, [data[0]] : data[1]};
-  }, {});
-}
-
-
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.TOKEN_SECRECT, { expiresIn: '1h' })
+  return jwt.sign(user, process.env.TOKEN_SECRECT, { expiresIn: '5m' })
 }
 
 module.exports = router

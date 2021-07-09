@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const subscribersRouter = require('./routes/subscribers');
+const todosRouter = require('./routes/todos');
 const usersRouter = require('./routes/users');
 
 const app = express();
@@ -23,12 +24,13 @@ app.use(morgan('dev'));
 
 //connect to db
 mongoose.connect(process.env.DATABASE_URL
-	, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true},
-	() => console.log("connected to db"));
+	, {useNewUrlParser: true, useUnifiedTopology: true})
+	.then(res => console.log('connect to db ...'));
 
 
 //routes
 app.use('/api/users', usersRouter);
+app.use('/api/todos', todosRouter);
 app.use('/api/subscribers', subscribersRouter);
 
 const PORT = process.env.PORT || 3001;
