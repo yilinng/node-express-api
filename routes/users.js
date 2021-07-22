@@ -217,7 +217,7 @@ async function getUser(req, res, next){
 }
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.TOKEN_SECRECT, { expiresIn: '5m' })
+  return jwt.sign(user, process.env.TOKEN_SECRECT, { expiresIn: '20m' })
 }
 
 module.exports = router
