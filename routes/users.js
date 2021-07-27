@@ -181,14 +181,19 @@ router.post('/login', getUser, async (req, res) => {
     if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'});
     
     let hashedPassword;
-    //check password have mutation
-    const validPass = await bcrypt.compare(req.body.password, req.user.pwd);
-    if(!validPass){
-      hashedPassword = await bcrypt.hash(req.body.password, 10);
-    }else{
+    //if password not mutation
+    if(req.body.password === req.user.pwd){
       hashedPassword = req.user.pwd;
     }
-    console.log(req.user)
+    //check password have mutation
+    const validPass = await bcrypt.compare(req.body.password, req.user.pwd);
+    
+    if(!validPass){
+      if(!hashedPassword){
+        hashedPassword = await bcrypt.hash(req.body.password, 10);
+      }   
+    }
+   
    try{
       const user = await User.updateOne(
         { _id: req.body._id}, 
