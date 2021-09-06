@@ -20,7 +20,9 @@ router.post('/token', async (req, res) => {
     const accessToken = generateAccessToken(user);
     res.cookie('token', accessToken, {
       expires  : new Date(Date.now() + 9999999),
-      httpOnly : true
+      httpOnly : true,
+      sameSite : 'none',
+      secure: true
     });
     res.status(200).json({ accessToken });
   })
@@ -80,17 +82,23 @@ router.post('/signup', async (req, res) => {
       
       res.cookie('token', accessToken, {
         expires  : new Date(Date.now() + 9999999),
-        httpOnly : true
+        httpOnly : true,
+        sameSite : 'none',
+        secure: true
       });
   
       res.cookie('retoken', refreshToken, {
         expires  : new Date(Date.now() + 9999999),
-        httpOnly : true
+        httpOnly : true,
+        sameSite : 'none',
+        secure: true
       });
   
       res.cookie('auth', uuidv4(), {
         expires  : new Date(Date.now() + 9999999),
-        httpOnly : false
+        httpOnly : false,
+        sameSite : 'none',
+        secure: true
       });
 
       res.status(201).json({
@@ -108,17 +116,22 @@ router.post('/signup', async (req, res) => {
 //clear token need refreshtoken !!
 router.delete('/logout', (req, res) => {
  
-  //refreshTokens database have to delete when log out!!
-   RefreshToken.deleteOne({ refresh_token: req.body.token })
-   .then(res => console.log('success', res))
-   .catch(err => console.log('fail', err));
+  try{
+      //refreshTokens database have to delete when log out!!
+      RefreshToken.deleteOne({ refresh_token: req.body.token })
+      .then(res => console.log('success', res))
+      .catch(err => console.log('fail', err));
 
-  //  Clearing the cookie
-  res.clearCookie('auth');
-  res.clearCookie('token');
-  res.clearCookie('retoken');
-  //refreshTokens = refreshTokens.filter(token => token !== req.body.token);
-  res.status(204).json({ message: 'logout success!!' })
+      //  Clearing the cookie
+      res.clearCookie('auth');
+      res.clearCookie('token');
+      res.clearCookie('retoken');
+      //refreshTokens = refreshTokens.filter(token => token !== req.body.token);
+      res.status(204).json({ message: 'logout success!!' })  
+  
+  }catch{
+    res.status(500).json({message: 'server error...'})
+  }
   
 });  
 
@@ -152,17 +165,23 @@ router.post('/login', getUser, async (req, res) => {
 
     res.cookie('token', accessToken, {
       expires  : new Date(Date.now() + 9999999),
-      httpOnly : true
+      httpOnly : true,
+      sameSite : 'none',
+      secure: true
     });
 
     res.cookie('retoken', refreshToken, {
       expires  : new Date(Date.now() + 9999999),
-      httpOnly : true
+      httpOnly : true,
+      sameSite : 'none',
+      secure: true
     });
 
     res.cookie('auth', uuidv4(), {
       expires  : new Date(Date.now() + 9999999),
-      httpOnly : false
+      httpOnly : false,
+      sameSite : 'none',
+      secure: true
     });
 
     res.status(201).json({
@@ -181,18 +200,16 @@ router.post('/login', getUser, async (req, res) => {
     if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'});
     
     let hashedPassword;
-    //if password not mutation
+
+    //check hash password is same 
     if(req.body.password === req.user.pwd){
       hashedPassword = req.user.pwd;
     }
-    //check password have mutation
-    const validPass = await bcrypt.compare(req.body.password, req.user.pwd);
-    
-    if(!validPass){
-      if(!hashedPassword){
-        hashedPassword = await bcrypt.hash(req.body.password, 10);
-      }   
+    //if have value
+    if(!hashedPassword){
+      hashedPassword = await bcrypt.hash(req.body.password, 10);
     }
+  
    
    try{
       const user = await User.updateOne(
