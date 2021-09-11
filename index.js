@@ -14,10 +14,7 @@ const app = express();
 //middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({
-	origin: true,
-	credentials: true
-}))
+app.use(cors())
 app.use(cookieParser());
 // HTTP request logger middleware for node.js
 app.use(morgan('dev'));

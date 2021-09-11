@@ -8,6 +8,7 @@ const RefreshToken = require('../models/refreshtoken');
 const verify = require('../verifyToken'); 
 const { v4: uuidv4 } = require('uuid');
 
+//use refreshtoken to yield now accesstoken
 
 router.post('/token', async (req, res) => {
   const refreshToken = req.body.token;
@@ -21,24 +22,36 @@ router.post('/token', async (req, res) => {
     res.cookie('token', accessToken, {
       expires  : new Date(Date.now() + 9999999),
       httpOnly : true,
-      sameSite : 'none',
-      secure: true
+      // Forces to use https in production
+      secure: process.env.NODE_ENV === 'production'? true: false
     });
     res.status(200).json({ accessToken });
   })
 });
 
-router.get('/get-cookies', (req, res) => {
-  const cookies = req.cookies;
-  res.json({cookies: cookies})
+router.get('/get-cookies', verify, (req, res) => {
+  //const cookies = req.cookies._namespace_key;
+  const rawCookies = req.headers.cookie.split('; ');
+
+  const [namespace, token, retoken] = rawCookies;
+
+  if(token === undefined && retoken === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
+
+  const [tokenName, tokenVal] = token.split('=');
+
+  const [reName, retokenVal] = retoken.split('=');
+
+  res.json({ token: tokenVal, retoken: retokenVal })
 })
 
 //Getting this user
 router.get('/', verify, async(req, res) => {
   
-  const { headers: {cookie} } = req;
-  
-  if (cookie === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
+  const rawCookies = req.headers.cookie.split('; ');
+
+  const [namespace, token, retoken] = rawCookies;
+
+  if(token === undefined && retoken === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
 
     try {
       const user = await User.findOne({email: req.user.email});
@@ -83,22 +96,15 @@ router.post('/signup', async (req, res) => {
       res.cookie('token', accessToken, {
         expires  : new Date(Date.now() + 9999999),
         httpOnly : true,
-        sameSite : 'none',
-        secure: true
+        // Forces to use https in production
+        secure: process.env.NODE_ENV === 'production'? true: false
       });
   
       res.cookie('retoken', refreshToken, {
         expires  : new Date(Date.now() + 9999999),
         httpOnly : true,
-        sameSite : 'none',
-        secure: true
-      });
-  
-      res.cookie('auth', uuidv4(), {
-        expires  : new Date(Date.now() + 9999999),
-        httpOnly : false,
-        sameSite : 'none',
-        secure: true
+        // Forces to use https in production
+        secure: process.env.NODE_ENV === 'production'? true: false
       });
 
       res.status(201).json({
@@ -164,24 +170,15 @@ router.post('/login', getUser, async (req, res) => {
     const newToken = await token.save();
 
     res.cookie('token', accessToken, {
-      expires  : new Date(Date.now() + 9999999),
       httpOnly : true,
-      sameSite : 'none',
-      secure: true
+       // Forces to use https in production
+       secure: process.env.NODE_ENV === 'production'? true: false
     });
 
     res.cookie('retoken', refreshToken, {
-      expires  : new Date(Date.now() + 9999999),
       httpOnly : true,
-      sameSite : 'none',
-      secure: true
-    });
-
-    res.cookie('auth', uuidv4(), {
-      expires  : new Date(Date.now() + 9999999),
-      httpOnly : false,
-      sameSite : 'none',
-      secure: true
+      // Forces to use https in production
+       secure: process.env.NODE_ENV === 'production'? true: false
     });
 
     res.status(201).json({
