@@ -31,9 +31,9 @@ router.post('/token', async (req, res) => {
 
 router.get('/get-cookies', (req, res) => {
   //const cookies = req.cookies._namespace_key;
-  const rawCookies = req.headers.cookie ? req.headers.cookie.split('; ') : null;
+  const rawCookies = req.headers.cookie.includes(';') ? req.headers.cookie.split('; ') : null;
   
-  if(rawCookies === null) return res.status(400).json('you have to login');
+  if(rawCookies === null) return res.sendStatus(403);
 
   const [token, retoken] = rawCookies;
 
@@ -41,17 +41,15 @@ router.get('/get-cookies', (req, res) => {
 
   const [reName, retokenVal] = retoken.split('=');
 
-  res.json({ token: tokenVal, retoken: retokenVal })
+  res.status(200).json({ tokenName: tokenVal, reName: retoken })
 })
 
 //Getting this user
 router.get('/', verify, async(req, res) => {
   
-  const rawCookies = req.headers.cookie ? req.headers.cookie.split('; ') : null;
+  const rawCookies = req.headers.cookie.includes(';') ? req.headers.cookie.split('; ') : null;
   
   if(rawCookies === null) return res.status(400).json('you have to login');
-
-  const [token, retoken] = rawCookies;
 
     try {
       const user = await User.findOne({email: req.user.email});
