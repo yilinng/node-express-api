@@ -14,7 +14,7 @@ const app = express();
 //middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors())
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
 app.use(cookieParser());
 // HTTP request logger middleware for node.js
 app.use(morgan('dev'));

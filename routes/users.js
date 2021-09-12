@@ -29,13 +29,13 @@ router.post('/token', async (req, res) => {
   })
 });
 
-router.get('/get-cookies', verify, (req, res) => {
+router.get('/get-cookies', (req, res) => {
   //const cookies = req.cookies._namespace_key;
-  const rawCookies = req.headers.cookie.split('; ');
+  const rawCookies = req.headers.cookie ? req.headers.cookie.split('; ') : null;
+  
+  if(rawCookies === null) return res.status(400).json('you have to login');
 
-  const [namespace, token, retoken] = rawCookies;
-
-  if(token === undefined && retoken === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
+  const [token, retoken] = rawCookies;
 
   const [tokenName, tokenVal] = token.split('=');
 
@@ -47,11 +47,11 @@ router.get('/get-cookies', verify, (req, res) => {
 //Getting this user
 router.get('/', verify, async(req, res) => {
   
-  const rawCookies = req.headers.cookie.split('; ');
+  const rawCookies = req.headers.cookie ? req.headers.cookie.split('; ') : null;
+  
+  if(rawCookies === null) return res.status(400).json('you have to login');
 
-  const [namespace, token, retoken] = rawCookies;
-
-  if(token === undefined && retoken === undefined) return res.status(404).json({ message: 'you are need authorization!!'})
+  const [token, retoken] = rawCookies;
 
     try {
       const user = await User.findOne({email: req.user.email});
@@ -94,17 +94,17 @@ router.post('/signup', async (req, res) => {
       const newToken = await token.save();
       
       res.cookie('token', accessToken, {
-        expires  : new Date(Date.now() + 9999999),
-        httpOnly : true,
-        // Forces to use https in production
-        secure: process.env.NODE_ENV === 'production'? true: false
+        expires: new Date(Date.now() + 9999999),
+        httpOnly : false,
+         // Forces to use https in production
+         secure: process.env.NODE_ENV === 'production'? true: false
       });
   
       res.cookie('retoken', refreshToken, {
-        expires  : new Date(Date.now() + 9999999),
-        httpOnly : true,
+        expires: new Date(Date.now() + 9999999),
+        httpOnly : false,
         // Forces to use https in production
-        secure: process.env.NODE_ENV === 'production'? true: false
+         secure: process.env.NODE_ENV === 'production'? true: false
       });
 
       res.status(201).json({
@@ -170,13 +170,15 @@ router.post('/login', getUser, async (req, res) => {
     const newToken = await token.save();
 
     res.cookie('token', accessToken, {
-      httpOnly : true,
+      expires: new Date(Date.now() + 9999999),
+      httpOnly : false,
        // Forces to use https in production
        secure: process.env.NODE_ENV === 'production'? true: false
     });
 
     res.cookie('retoken', refreshToken, {
-      httpOnly : true,
+      expires: new Date(Date.now() + 9999999),
+      httpOnly : false,
       // Forces to use https in production
        secure: process.env.NODE_ENV === 'production'? true: false
     });
