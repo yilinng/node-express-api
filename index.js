@@ -4,7 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+
 const mongoose = require('mongoose');
+
 const subscribersRouter = require('./routes/subscribers');
 const todosRouter = require('./routes/todos');
 const usersRouter = require('./routes/users');
@@ -14,10 +16,24 @@ const app = express();
 //middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+
+/*
+app.use(cors({
+    credentials: true,
+    origin: 'http://192.168.99.100:3000',
+	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}));
+*/
+app.use(cors({
+    credentials: true,
+    origin: true
+}))
+
 app.use(cookieParser());
 // HTTP request logger middleware for node.js
 app.use(morgan('dev'));
+
+app.use(express.static('build'));
 
 //connect to db
 mongoose.connect(process.env.DATABASE_URL
