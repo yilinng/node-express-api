@@ -117,31 +117,11 @@ router.post('/signup', async (req, res) => {
       });
 
     } catch (err) {
-      res.status(400).json({ message: err.message})
+      res.status(400).json({ message: err.message })
     } 
     
   });
 
-//clear token need refreshtoken !!
-router.delete('/logout', (req, res) => {
- 
-  try{
-      //refreshTokens database have to delete when log out!!
-      RefreshToken.deleteOne({ refresh_token: req.body.token })
-      .then(res => console.log('success', res))
-      .catch(err => console.log('fail', err));
-
-      //  Clearing the cookie
-      res.clearCookie('token');
-      res.clearCookie('retoken');
-      //refreshTokens = refreshTokens.filter(token => token !== req.body.token);
-      res.status(204).json({ message: 'logout success!!' })  
-  
-  }catch{
-    res.status(500).json({message: 'server error...'})
-  }
-  
-});  
 
 
 router.post('/login', getUser, async (req, res) => {   
@@ -192,7 +172,7 @@ router.post('/login', getUser, async (req, res) => {
     });
        
   } catch (err) {
-    res.status(400).json({ message: err.message})
+    res.status(400).json({ message: err.message })
   } 
 
   });
@@ -227,6 +207,28 @@ router.post('/login', getUser, async (req, res) => {
   }
   
   });
+
+  
+//clear token need refreshtoken !!
+router.delete('/logout', verify, (req, res) => {
+ 
+  try{
+      //refreshTokens database have to delete when log out!!
+      RefreshToken.deleteOne({ refresh_token: req.body.token })
+      .then(res => console.log('success', res))
+      .catch(err => console.log('fail', err));
+
+      //  Clearing the cookie
+      res.clearCookie('token');
+      res.clearCookie('retoken');
+      //refreshTokens = refreshTokens.filter(token => token !== req.body.token);
+      res.status(204).json({ message: 'logout success!!' })  
+  
+  }catch{
+    res.status(500).json({message: 'server error...'})
+  }
+  
+});  
 
 async function getUser(req, res, next){
     let user

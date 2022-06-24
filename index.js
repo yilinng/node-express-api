@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser');
 
 const mongoose = require('mongoose');
 
-const subscribersRouter = require('./routes/subscribers');
 const todosRouter = require('./routes/todos');
 const usersRouter = require('./routes/users');
 
@@ -35,19 +34,35 @@ app.use(morgan('dev'));
 
 app.use(express.static('build'));
 
-//connect to db
-mongoose.connect(process.env.DATABASE_URL
-	, {useNewUrlParser: true, useUnifiedTopology: true})
-	.then(res => console.log('connect to db ...'));
+let mongodbURI;
+if (process.env.NODE_ENV === "test") {
+    mongodbURI = process.env.MONGODB_TEST_URI
+} else {
+    mongodbURI = process.env.DATABASE_URL
+}
+
+const mongodb = mongoose.connect(mongodbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+
+//connect to db `mongodb://root:example@mongo:27017/`
+mongodb
+	.then(() => {
+      if (!module.parent) {
+          app.listen(app.get("port"), () => { });
+        }
+    })
+    .catch(err => console.error(err))
 
 
 //routes
 app.use('/api/users', usersRouter);
 app.use('/api/todos', todosRouter);
-app.use('/api/subscribers', subscribersRouter);
 
 const PORT = process.env.PORT || 3001;
+
 
 app.listen(PORT, () => {
     console.log(`server listening on ${PORT}`);
 });
+
+
+module.exports = app

@@ -7,7 +7,7 @@ const verify = require('../verifyToken');
 router.get('/', verify, async (req, res) => {
   try {
     const todos = await Todo.find()
-    res.json(todos)
+    res.status(200).json(todos)
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
@@ -53,7 +53,7 @@ router.patch('/', verify, getTodo, async (req, res) => {
 router.delete('/', verify, getTodo, async (req, res) => {
   try {
     await res.todo.remove()
-    res.json({ message: 'Deleted Todo!!' })
+    res.status(204).json({ message: 'Deleted Todo!!' })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
