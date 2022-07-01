@@ -214,7 +214,7 @@ router.delete('/logout', verify, (req, res) => {
  
   try{
       //refreshTokens database have to delete when log out!!
-      RefreshToken.deleteOne({ refresh_token: req.body.token })
+      RefreshToken.deleteOne({ email: req.body.email })
       .then(res => console.log('success', res))
       .catch(err => console.log('fail', err));
 

@@ -36,7 +36,7 @@ app.use(express.static('build'));
 
 let mongodbURI;
 if (process.env.NODE_ENV === "test") {
-    mongodbURI = process.env.MONGODB_TEST_URI
+    mongodbURI = process.env.DATABASE_URL//MONGODB_TEST_URI
 } else {
     mongodbURI = process.env.DATABASE_URL
 }

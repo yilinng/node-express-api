@@ -5,6 +5,7 @@ const RefreshToken = require('../models/refreshtoken')
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
 
 
 // Import the application to test
@@ -19,39 +20,27 @@ describe('User crud unit test', () => {
   let accessToken;
   let userstore;
   let todoId;
-  User.collection.deleteOne({'email': 'test123@test.com' })
+  User.collection.drop()
   RefreshToken.collection.drop();
 
-  /*
-  beforeEach((done) => {
+  
+  beforeEach(async() => {
+    const hashedPassword = await bcrypt.hash('test123', 10);
+
     mockUser = new User({
-        name: 'test',
-        password: 'testtest',
-        email: 'test@test.com'
+        name: 'test 123',
+        email: 'test123@test.com',
+        password: hashedPassword
     });
 
-    mockUser.save(function (err) {
-        done();
-    });
+    await mockUser.save();
   
   }); 
- 
-  beforeEach(async function() {
-    todoId = uuidv4();
-    let mockUser = await User.findOne({email: 'test12@test.com'});
-    mockTodo = new Todo({
-      "_id": todoId,
-      "user_id": mockUser._id,
-      "username": "John Doe",
-      "title": "post one",
-      "context":["seventeen", "", "time",""]
-    });
 
-    await mockTodo.save()
-  });
-    */ 
+ 
   afterEach((done) => {
     User.collection.deleteOne({'email': 'test123@test.com' })
+    User.collection.deleteOne({'email': 'test12@test.com' })
     RefreshToken.collection.drop();
     done();
   });
@@ -60,20 +49,20 @@ describe('User crud unit test', () => {
     it('should login success', async() => {
       
       let user = {
-        email: 'test12@test.com',
-        password: 'test12'
+        email: 'test123@test.com',
+        password: 'test123'
       };
 
       const res = await chai.request(app)
           .post('/api/users/login')
           .set('Content-Type', 'application/json')
-          .send(user)
+          .send(user);
+
           res.should.have.status(201);
           res.should.be.json;
           refreshtoken = res.body.newToken.refresh_token;
           accessToken = res.body.accessToken;
           userstore = res.body.user
-         
         })
         
   });
@@ -86,7 +75,7 @@ describe('User crud unit test', () => {
             .set("Authorization", 'Bearer ' + accessToken )
             .then(res => {
                   res.should.have.status(200);
-                  res.should.be.json;                           
+                  res.should.be.json;
             })
       });
   });
@@ -97,8 +86,8 @@ describe('User crud unit test', () => {
       let user = {
         "_id": userstore._id,
         "name": "test from mocha123",
-        "email": "test12@test.com",
-        "password": "test12"
+        "email": "test123@test.com",
+        "password": "test123"
       };
       chai.request(app)
           .put('/api/users/update-profile')
@@ -108,7 +97,6 @@ describe('User crud unit test', () => {
           .send(user)
           .then(res => {
                 res.should.have.status(200);
-               
           })
     
         });
@@ -168,7 +156,8 @@ describe('User crud unit test', () => {
           .send(todo)
           .then(res => {
                 res.should.have.status(200);
-                res.should.be.json;         
+                res.should.be.json;
+                console.log(res, 'should update todo success')         
           })
           
       })
@@ -214,8 +203,8 @@ describe('User crud unit test', () => {
       it('should signup success', () => {
         let user = {
           name: "test from mocha",
-          email: "test123@test.com",
-          password: "test123"
+          email: "test12@test.com",
+          password: "test12"
         };
           chai.request(app)
               .post('/api/users/signup')
