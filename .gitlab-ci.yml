@@ -12,11 +12,17 @@ variables:
 
 stages:
   - test
+  - run
 
 api-test:
   stage: test
   services:
     - mongo:3.6.19-xenial
   script:
-    - yarn test  
+    - yarn test
+
+cicd-check:
+  stage: run
+  script:
+    - echo "I'm running at the cicd!!"      
  
