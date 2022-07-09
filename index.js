@@ -1,6 +1,16 @@
 require('dotenv').config();
 
 const express = require('express');
+const redis = require('redis')
+const PORT = process.env.PORT || 3001;
+const REDIS_PORT = process.env.REDIS_PORT || 6379
+const client = redis.createClient({
+    host:'redis-server', port: 6379
+})
+
+client.on('connect', () => console.log(`Redis is connected on port ${REDIS_PORT}`))
+client.on("error", (error) => console.error(error))
+
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -36,7 +46,7 @@ app.use(express.static('build'));
 
 let mongodbURI;
 if (process.env.NODE_ENV === "test") {
-    mongodbURI = process.env.DATABASE_URL//MONGODB_TEST_URI
+    mongodbURI = process.env.MONGODB_TEST_URI
 } else {
     mongodbURI = process.env.DATABASE_URL
 }
@@ -57,7 +67,7 @@ mongodb
 app.use('/api/users', usersRouter);
 app.use('/api/todos', todosRouter);
 
-const PORT = process.env.PORT || 3001;
+
 
 
 app.listen(PORT, () => {

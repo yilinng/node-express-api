@@ -1,0 +1,22 @@
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - server/node_modules/
+
+default:
+  image: node:14-alpine3.12
+
+variables:
+  MONGO_URL: 'mongodb://root:example@mongo:27017'
+  NODE_ENV: 'test'
+
+stages:
+  - test
+
+api-test:
+  stage: test
+  services:
+    - mongo:3.6.19-xenial
+  script:
+    - yarn test  
+ 
