@@ -1,7 +1,7 @@
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - server/node_modules/
+    - node_modules/
 
 default:
   image: node:14-alpine3.12
