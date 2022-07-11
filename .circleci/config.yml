@@ -4,15 +4,20 @@ jobs:
     docker:
       - image: circleci/node:12-browsers
       - image: circleci/mongo:4.2.0
+        port: 27017:27017
+        environment:
+          - MONGODB_USERNAME: "myrootuser"
+          - MONGODB_PASSWORD: "mypassword"
     steps:
       - checkout
       - setup_remote_docker
       - run:
           name: MongoDB Install
-          command: sudo apt-get install -y mongodb
+          command: |
+         sudo apt-get install -y mongodb
       - run:
           name: Database Setup
-          command: mongodb && mongo --eval 'db.createUser({ user: "myrootuser", pwd: "mypassword", roles: [ { role: "userAdminAnyDatabase", db: "admin" } ] })' 
+          command: mongodb && mongo --eval 'db.createUser({ user: "myrootuser", pwd: "mypassword", roles: [ { role: "userAdminAnyDatabase", db: "admin" } ] })'
       - run:
           name: Install package json dependencies
           command: npm install   
