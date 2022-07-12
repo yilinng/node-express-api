@@ -5,14 +5,14 @@ jobs:
       - image: cimg/node:14.19.2-browsers
         environment:
           TEST_DATABASE_URL: mongodb://root:example@mongo:27017
-      - image: circleci/mongo:4.0-xenial-ram
+      - image: circleci/mongo:latest-ram
     steps:
       - checkout
       - setup_remote_docker
       - run:
           name: MongoDB Install
           command: |
-              sudo apt-get install -y mongodb-org=4.0 mongodb-org-database=4.0 mongodb-org-server=4.0 mongodb-org-shell=4.0 mongodb-org-mongos=4.0 mongodb-org-tools=4.0
+          sudo apt-get update && sudo apt-get install -y mongo
       - run:
           name: Install package json dependencies
           command: npm install   
