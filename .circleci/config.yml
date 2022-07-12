@@ -1,26 +1,27 @@
 version: 2.1
 jobs:
   build:
-    docker:
-      - image: circleci/node:12-browsers
-      - image: circleci/mongo:4.2.0
-        port: 27017:27017
+    docker: 
+      - image: cimg/node:14.19.2-browsers
         environment:
-          - MONGODB_USERNAME: "myrootuser"
-          - MONGODB_PASSWORD: "mypassword"
+          TEST_DATABASE_URL: mongodb://root:example@mongo:27017
+      - image: circleci/mongo:4.0-xenial-ram
     steps:
       - checkout
       - setup_remote_docker
       - run:
           name: MongoDB Install
           command: |
-         sudo apt-get install -y mongodb
-      - run:
-          name: Database Setup
-          command: mongodb && mongo --eval 'db.createUser({ user: "myrootuser", pwd: "mypassword", roles: [ { role: "userAdminAnyDatabase", db: "admin" } ] })'
+              sudo apt-get install -y mongodb-org=4.0 mongodb-org-database=4.0 mongodb-org-server=4.0 mongodb-org-shell=4.0 mongodb-org-mongos=4.0 mongodb-org-tools=4.0
       - run:
           name: Install package json dependencies
           command: npm install   
       - run:
           name: Run test
-          command: npm  test      
+          command: npm test      
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
