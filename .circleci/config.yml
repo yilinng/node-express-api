@@ -10,9 +10,6 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: sudo update
-          command: sudo apt-get update 
-      - run:
           name: MongoDB Install
           command: sudo apt-get install -y mongo    
       - run:
