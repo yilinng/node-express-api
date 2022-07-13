@@ -1,20 +1,20 @@
 version: 2.1
 jobs:
-  build:
+   build:
     docker: 
       - image: cimg/node:14.19.2-browsers
         environment:
-          TEST_DATABASE_URL: mongodb://root:example@mongo:27017
+          ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017
+       # Service container image    
       - image: circleci/mongo:latest-ram
+    
     steps:
       - checkout
-      - setup_remote_docker
+      - run: sudo apt-get update
       - run:
-          name: Install package json dependencies
-          command: npm install   
-      - run:
-          name: Run test
-          command: npm test      
+          name: MongoDB Install
+          command: sudo apt-get install -y mongodb-org
+      - run: sudo systemctl start mongod     
 workflows:
   version: 2
   build_and_test:
