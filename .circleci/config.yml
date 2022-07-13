@@ -1,10 +1,6 @@
 version: 2.1
 jobs:
-<<<<<<< HEAD
-  build-and-test:
-=======
    build:
->>>>>>> 8f6c61d70ac31bdb5f311c882ff1af23430bf49b
     docker: 
       - image: cimg/node:14.19.2-browsers
         environment:
@@ -12,11 +8,7 @@ jobs:
           NODE_ENV: test
        # Service container image    
       - image: circleci/mongo:3.6.19-xenial
-<<<<<<< HEAD
-      
-=======
-    
->>>>>>> 8f6c61d70ac31bdb5f311c882ff1af23430bf49b
+
     steps:
       - checkout
       - run: sudo apt-get update
@@ -25,12 +17,7 @@ jobs:
           command: sudo apt-get install -y mongodb
       - run: npm install
       - run: npm test
-<<<<<<< HEAD
 
-
-      
-=======
->>>>>>> 8f6c61d70ac31bdb5f311c882ff1af23430bf49b
 workflows:
   version: 2
   build_and_test:
