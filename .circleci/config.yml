@@ -23,13 +23,6 @@ jobs:
       - run:
           name: Waiting for Mongo
           command: dockerize -wait tcp://localhost:27017 -timeout 1m 
-      - run:
-          name: Get versions
-          command: |
-              node -v
-              npm -v
-              mongo -v
-              mongo localhost --eval "db.version()"       
       - run: npm install
       - run: npm test
 
