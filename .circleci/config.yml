@@ -5,6 +5,7 @@ jobs:
       - image: cimg/node:14.19.2-browsers
         environment:
           ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017
+          NODE_ENV: test
        # Service container image    
       - image: circleci/mongo:3.6.19-xenial
     
