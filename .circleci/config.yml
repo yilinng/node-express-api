@@ -13,8 +13,8 @@ jobs:
       - run: sudo apt-get update
       - run:
           name: MongoDB Install
-          command: sudo apt-get install -y mongodb-org
-      - run: sudo systemctl start mongod     
+          command: sudo apt-get install -y mongodb
+      - run: mongo     
 workflows:
   version: 2
   build_and_test:
