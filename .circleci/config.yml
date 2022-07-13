@@ -4,7 +4,7 @@ jobs:
     docker: 
       - image: cimg/node:14.19.2-browsers
         environment:
-          ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017
+          MONGODB_TEST_URI: mongodb://root:example@mongo:27017
           NODE_ENV: test
           TOKEN_SECRECT: 7d49614d503f18e6db7b47d4aed22948010762f9748cfb75da667b4e8c26036f9a7555b6a977e0757c6cf3d49bc7b93abaa628b3293dee6cd112226fe7f8ac1b
           REFRESH_TOKEN_SECRECT: 5017dff4db4e94550401c978acc1265c829bbca5a51a37f348a9e9f568383923ac96ffaff3b9f098bdce7781ff2aafba143e077a4ee0ab96576145967db1246a
