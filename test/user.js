@@ -1,5 +1,3 @@
-process.env.NODE_ENV = "test"
-
 const User = require('../models/user')
 const RefreshToken = require('../models/refreshtoken')
 const chai = require('chai')
