@@ -4,7 +4,7 @@ const Todo = require('../models/todo');
 const verify = require('../verifyToken');
 
 // Getting all user's todo
-router.get('/', verify, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const todos = await Todo.find()
     res.status(200).json(todos)
@@ -58,6 +58,15 @@ router.delete('/', verify, getTodo, async (req, res) => {
     res.status(500).json({ message: err.message })
   }
 });
+
+// Get One
+router.get('/', getTodo, async (req, res) => {
+  try {
+    res.status(200).json({ todos: res.todo })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
 
 async function getTodo(req, res, next) {
   let todo
