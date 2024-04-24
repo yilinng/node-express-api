@@ -14,7 +14,7 @@ const refreshtokenSchema = new mongoose.Schema({
     required: true,
     default: new Date(new Date().getTime() + 1 * 60 * 1000), // convert from minutes to milli seconds
     //https://stackoverflow.com/questions/38472125/delete-mongodb-document-at-specific-time
-    expires: 300,
+    //expires: 300,
   },
 })
 
