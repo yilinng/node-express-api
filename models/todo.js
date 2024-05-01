@@ -1,30 +1,33 @@
 const mongoose = require('mongoose')
 
 const todoSchema = new mongoose.Schema({
-  _id: {
-    type: String, 
-    required: true
-  },
   title: {
     type: String,
   },
   context: {
     type: [String],
-    default: []
+    default: [],
   },
   username: {
     type: String,
-    required: true
-  },
-  user_id: {
-    type: String,
-    required: true
   },
   updateDate: {
     type: Date,
     required: true,
-    default: Date.now
-  }
+    default: Date.now,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+})
+
+todoSchema.set('toJSON', {
+  transform: (_document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  },
 })
 
 module.exports = mongoose.model('Todo', todoSchema)
