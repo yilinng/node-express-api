@@ -35,6 +35,40 @@ describe('User crud unit test', () => {
   })
 
   describe('/api/users/login', () => {
+    it('fails with statuscode 404 email is invalid', async () => {
+      let user = {
+        email: 'test12@test.com',
+        password: 'test12',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/login')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(404)
+      res.should.be.json
+      res.body.message.should.equal('cannot find user, please sign up')
+    })
+
+    it('fails with statuscode 400 password is invalid', async () => {
+      let user = {
+        email: 'test1233@test.com',
+        password: 'test1234',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/login')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+      res.body.message.should.equal('Invalid password')
+    })
+
     it('should login success', async () => {
       let user = {
         email: 'test1233@test.com',
@@ -52,6 +86,23 @@ describe('User crud unit test', () => {
       refreshtoken = res.body.newToken.refresh_token
       accessToken = res.body.accessToken
       userstore = res.body.user
+    })
+
+    it('fails with statuscode 400 when user is logged in', async () => {
+      let user = {
+        email: 'test1233@test.com',
+        password: 'test1233',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/login')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+      res.body.message.should.equal('user is login!')
     })
   })
 
@@ -121,6 +172,92 @@ describe('User crud unit test', () => {
 
       res.should.have.status(201)
       res.should.be.json
+    })
+
+    it('fails with statuscode 400 password character less than 6', async () => {
+      let user = {
+        name: 'test from mocha',
+        email: 'test12@test.com',
+        password: 'test1',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/signup')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+    })
+
+    it('fails with statuscode 400 name is not input', async () => {
+      let user = {
+        name: '',
+        email: 'test12@test.com',
+        password: 'test1',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/signup')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+    })
+
+    it('fails with statuscode 400 email is not input', async () => {
+      let user = {
+        name: '1111',
+        email: '',
+        password: 'test1',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/signup')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+    })
+
+    it('fails with statuscode 400 password is not input', async () => {
+      let user = {
+        name: '1111',
+        email: '123@1243.com',
+        password: '',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/signup')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+    })
+
+    it('fails with statuscode 400 email is used', async () => {
+      let user = {
+        name: '1111',
+        email: 'test12@test.com',
+        password: 'test12',
+      }
+
+      const res = await chai
+        .request(app)
+        .post('/api/users/signup')
+        .set('Content-Type', 'application/json')
+        .send(user)
+
+      res.should.have.status(400)
+      res.should.be.json
+      res.body.message.should.equal('email already exist!')
     })
   })
 })

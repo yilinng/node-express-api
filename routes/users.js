@@ -8,7 +8,7 @@ const RefreshToken = require('../models/refreshtoken')
 const verify = require('../verifyToken')
 const { v4: uuidv4 } = require('uuid')
 
-//use refreshtoken to yield now accesstoken
+//use refreshtoken to yield new accesstoken
 router.post('/token', async (req, res) => {
   const refreshToken = req.body.token
   if (refreshToken == null) return res.sendStatus(401)

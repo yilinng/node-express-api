@@ -91,6 +91,8 @@ describe('Todo crud unit test', () => {
 
       res.should.have.status(201)
       res.should.be.json
+      res.body.should.have.property('todo')
+      res.body.should.have.property('user')
     })
   })
 
@@ -103,6 +105,7 @@ describe('Todo crud unit test', () => {
 
       res.should.have.status(200)
       res.should.be.json
+      res.body.should.have.lengthOf(2)
     })
   })
 
@@ -114,7 +117,7 @@ describe('Todo crud unit test', () => {
       console.log('todoToView', todoToView, todoToView.id, todoToView._id)
       let todo = {
         user: userstore._id,
-        title: 'post one from mocha',
+        title: 'update from mocha',
         context: ['seventeen', '123', 'time', '456'],
       }
 
@@ -129,6 +132,11 @@ describe('Todo crud unit test', () => {
 
       res.should.have.status(200)
       res.should.be.json
+      res.body.should.have.property('todo')
+      res.body.todo.should.have.property('title')
+      res.body.todo.should.have.property('context')
+      res.body.todo.title.should.equal('update from mocha')
+      res.body.todo.context.should.have.lengthOf(4)
     })
 
     it('should delete todo success', async () => {
