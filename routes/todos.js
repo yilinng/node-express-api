@@ -75,10 +75,6 @@ router.delete('/:id', verify, getTodo, async (req, res) => {
     return res.status(404).json({ message: 'user not found.' })
   }
 
-  console.log('res.todo.user', res.todo.user)
-  console.log('user._id', user._id)
-  console.log('res.todo.user ===user._id', res.todo.user.equals(user._id))
-
   if (!res.todo.user.equals(user._id)) {
     res
       .status(404)
@@ -90,9 +86,7 @@ router.delete('/:id', verify, getTodo, async (req, res) => {
   console.log('res.todo._id', res.todo._id)
 
   if ('todos' in user) {
-    //https://stackoverflow.com/questions/7825700/convert-string-to-objectid-in-mongodb
-    const objectid = convertObjectId(res.todo._id)
-    user.todos = user.todos.filter((todo) => todo !== objectid)
+    user.todos = user.todos.filter((todo) => !todo.equals(req.params.id))
   } else {
     user['todos'] = []
     console.log("'todos' not in user")
