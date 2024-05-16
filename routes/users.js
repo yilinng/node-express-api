@@ -126,8 +126,8 @@ router.post('/login', getUser, async (req, res) => {
   if (!validPass) return res.status(400).json({ message: 'Invalid password' })
 
   //check user is login, check refreshtoken id
-  const findUser = await RefreshToken.findOne({ email: res.user.email })
-  if (findUser) return res.status(400).json({ message: 'user is login!' })
+  //const findUser = await RefreshToken.findOne({ email: res.user.email })
+ // if (findUser) return res.status(400).json({ message: 'user is login!' })
 
   //Create and assign a token
   // generate refresh token and push in database
