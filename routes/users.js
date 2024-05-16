@@ -125,7 +125,7 @@ router.post('/login', getUser, async (req, res) => {
   const validPass = await bcrypt.compare(req.body.password, res.user.password)
   if (!validPass) return res.status(400).json({ message: 'Invalid password' })
 
-  //check user is login, check refreshtoken id
+  //check user is login, check refreshtoken id, then delete
   const findUser = await RefreshToken.findOne({ email: res.user.email })
   if (findUser) await findUser.remove()
 
